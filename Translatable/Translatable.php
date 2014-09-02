@@ -223,5 +223,10 @@ trait Translatable {
         $translation->setAttribute($this->getLocaleKey(), $locale);
         return $translation;
     }
+    
+    public function __isset($key)
+    {
+        return (in_array($key, $this->translatedAttributes) || parent::__isset($key));
+    }
 
 }
