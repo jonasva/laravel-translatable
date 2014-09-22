@@ -228,5 +228,34 @@ trait Translatable {
     {
         return (in_array($key, $this->translatedAttributes) || parent::__isset($key));
     }
-
+    
+    /*
+     * Fetch entities by a translated field
+     *  
+     * $column can be an array for multiple where clauses
+     * example:
+     * $article = Article::findByTranslatedField([['slug', '=', $slug], ['published', '=', 1]]);
+     */
+    public static function findByTranslatedField($column, $operator = null, $value = null) 
+    {
+        $instance = new static;
+        
+        $result = $instance::whereHas(
+            'translations',
+            function ($query) use ($column, $operator, $value) {
+                if (is_array($column)) {
+                    foreach($column as $clause) {
+                        $query->where($clause[0], $clause[1], $clause[2]);
+                    }
+                } else {
+                    $query->where($column, $operator, $value);
+                }
+                
+                $query->where('locale', App::getLocale());
+            }
+        );
+        
+        return $result;
+    }
+    
 }
